@@ -83,25 +83,32 @@ ggsave(filename="timeseries.png", dpi=300, width=8, height=4, bg = "transparent"
 ######################################################################
 
 require("wordcloud")
-source("mywordcloud.R")
+#source("mywordcloud.R") 
 
 names2015 <- names %>% filter(year==2015)
 boys2015 <- names %>% filter(year==2015, sex == "boys")
 girls2015 <- names %>% filter(year==2015, sex == "girls")
 
+# set.seed(123)
+# pdf(file="wordcloud-girls.pdf",width=10,height=10)
+# par(mar=c(0,0,0,0))
+# pal <- brewer.pal(9, "PuRd")[-c(1:2)]
+# wordcloud(girls2015$Name,girls2015$Count,colors=pal,min.freq=50,random.order=FALSE)
+# dev.off()
+# pdf(file="wordcloud-boys.pdf",width=10,height=10)
+# par(mar=c(0,0,0,0))
+# pal <- brewer.pal(9, "Blues")[-c(1:2)]
+# wordcloud(boys2015$Name,boys2015$Count,colors=pal,min.freq=50,random.order=FALSE)
+# dev.off()
+
 set.seed(123)
-pdf(file="wordcloud-girls.pdf",width=10,height=10)
-par(mar=c(0,0,0,0))
+png(file="wordclouds.png",width=800,height=400,res=72)
+par(mar=c(0,0,0,0), mfcol=c(1,2))
 pal <- brewer.pal(9, "PuRd")[-c(1:2)]
 wordcloud(girls2015$Name,girls2015$Count,colors=pal,min.freq=50,random.order=FALSE)
-dev.off()
-pdf(file="wordcloud-boys.pdf",width=10,height=10)
-par(mar=c(0,0,0,0))
 pal <- brewer.pal(9, "Blues")[-c(1:2)]
 wordcloud(boys2015$Name,boys2015$Count,colors=pal,min.freq=50,random.order=FALSE)
 dev.off()
-
-
 
 
 
