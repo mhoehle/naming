@@ -12,3 +12,5 @@ github project.
 
 	##Generate bonus material
 	source("ons-ts-collision.R")
+
+More information and background material is found [here](http://http://staff.math.su.se/hoehle/naming/).
