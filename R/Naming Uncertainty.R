@@ -1,3 +1,12 @@
+#' ---
+#' title: "Naming Uncertainty: Ranks and Collisions"
+#' author: Michael Höhle, Stockholm University
+#' output:
+#'  html_document:
+#'    self_contained: true
+#' ---
+#' Notebook of the R code.
+
 ## ----setup, include=FALSE------------------------------------------------
 ######################################################################
 ## This file contains the R source code for the analysis of the
@@ -11,7 +20,7 @@
 ## License: GPLv3 - http://www.gnu.org/licenses/gpl-3.0.txt
 ######################################################################
 
-knitr::opts_chunk$set(echo = FALSE, results='hide', message=FALSE)
+##knitr::opts_chunk$set(echo = FALSE, results='hide', message=FALSE)
 ##Create accompanying R file
 ##knitr::purl(input="Naming Uncertainty-r01.Rmd",output="Naming Uncertainty.R")
 
@@ -128,7 +137,6 @@ topN <- 8
 nb %>% do({head(.,n=topN)})
 
 nb %>% filter(UC_Rank <= topN)
-print(nb ,n=100)
 
 ##First with more than one per sex
 first_tied <- nb %>% filter(grepl(",", `Baby Names`)) %>% slice(1)
@@ -136,7 +144,7 @@ first_tied <- nb %>% filter(grepl(",", `Baby Names`)) %>% slice(1)
 boys_ucrank_tied <- first_tied %>% filter(Sex == "boys") %$% `Baby Names` %>% strsplit(split=", ") %>% .[[1]]
 girls_ucrank_tied <- first_tied %>% filter(Sex == "girls") %$% `Baby Names` %>% strsplit(split=", ") %>% .[[1]]
 
-## ---- echo=FALSE, warning=FALSE, results="asis"--------------------------
+## ---- results="asis"--------------------------
 require(xtable)
 nb <- nb %>% ungroup 
 tab <- xtable::xtable(bind_cols(nb %>% ungroup %>% filter(Sex=="girls") %>% 
@@ -256,17 +264,13 @@ make_text <- function(noCollider) {
   sprintf("%s (%s rank %d)",firstName, noCollider$Sex, noCollider$Rank)
 }
 
-## ------------------------------------------------------------------------
-##Store result
-save(file=file.path("..","Data","results.RData"),list=c("top150Names","nb","newborn_rank","b","b2"))
-if (FALSE) {
-   load(file=file.path("..","Data","results.RData"))
-}
+
+noColliders
+noColliders %>% filter(Sex=="boys") %>% make_text
 
 ## ------------------------------------------------------------------------
 N <- newborn %>% distinct(Name) %>% nrow
 n <- 27
 
-## ----echo=FALSE----------------------------------------------------------
 gmp::log10.bigz(gmp::chooseZ(N,n))
 

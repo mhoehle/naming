@@ -102,7 +102,7 @@ girls2015 <- names %>% filter(year==2015, sex == "girls")
 # dev.off()
 
 set.seed(123)
-png(file="wordclouds.png",width=800,height=400,res=72)
+png(file="wordclouds.png",width=800,height=400,res=72,bg = "transparent")
 par(mar=c(0,0,0,0), mfcol=c(1,2))
 pal <- brewer.pal(9, "PuRd")[-c(1:2)]
 wordcloud(girls2015$Name,girls2015$Count,colors=pal,min.freq=50,random.order=FALSE)
