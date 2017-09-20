@@ -1,10 +1,11 @@
 ######################################################################
 ## Author: Michael Höhle <http://www.math.su.se/~hoehle>
-## Date:   2017-04-23
+## Date:   2017-04-23, modified 2017-09-20 to include 2016 data.
 ##
 ## Description:
 ##  Create bonus material plot containing the time series of the UK baby
-##  name collision probability.
+##  name collision probability. All data files specified in the
+##  file filenames.txt are
 ######################################################################
 
 library("readxl")
@@ -47,9 +48,17 @@ for (sex in c("Girls","Boys")) {
     if (length(sheetName) == 0) {
       sheetName <- tail(grep("Table [0-9]",sheets, value=TRUE),n=1)
     }
+    ##Read the data from the excel file
+    x <- readxl::read_excel(path=filePath,sheet=sheetName,skip=4) %>%
+      select(Rank, Name, Count)
+    ##Add column containing info about the year and sex
+    x <- x %>% filter(!is.na(Rank)) %>%
+      mutate(year=substr(name,1,4),sex=tolower(sex))
 
-    x <- readxl::read_excel(path=filePath,sheet=sheetName,skip=4)
-    x <- x %>% filter(!is.na(Rank)) %>% mutate(year=substr(name,1,4),sex=tolower(sex))
+    ##Debug information
+    ##cat("Sex = ", sex, "\t file= ",name, "\tncol = ", ncol(x),"\n")
+    ##print(names(x))
+
     names <- rbind(names, x)
   }
 }
@@ -68,11 +77,13 @@ collision <- names %>% group_by(year) %>% do({
   p <- sapply(n, function(n) birthdayproblem::pbirthday_up(n=n, .$p ,method="mase1992")$prob)
   data.frame(n=n, p=p)
 })
+collision <- collision %>% mutate(type=as.character("Names occurring > 2 times"))
+collision <- bind_rows(collision, data.frame(year=c("2015","2016"),n=27,p=c(0.458,0.429), type="All names"))
 
-##Make the time series plot
-p <- ggplot(collision, aes(x=as.numeric(year),y=p)) + geom_line(size=1.2,color="lightsalmon2") + xlab("Time (year)") + ggtitle("Probability of a name clash in a group of 27 kids born in year YYYY in the UK and Wales") + ylab("Probability")+  scale_y_continuous(limits=c(0,1),labels=scales::percent) +  scale_colour_discrete(name  ="n") + geom_point(data=data.frame(year=2015,p=0.458),color="lightsalmon4") + scale_x_continuous(breaks=seq(min(as.numeric(collision$year)),max(as.numeric(collision$year)),2))
-## Transparent background in ggplot - see http://stackoverflow.com/questions/31550435/issue-saving-r-plot-with-transparent-background
-p + theme_bw() + theme(plot.background = element_rect(fill = "transparent",colour = NA))
+p <- ggplot(collision, aes(x=as.numeric(year),y=p,colour=type)) + geom_line(size=1.2) + xlab("Year of birth") + ggtitle("Probability of a name clash in a group of 27 kids born in year YYYY in the UK and Wales") + ylab("Probability")+  scale_y_continuous(limits=c(0,1),labels=scales::percent) +  scale_colour_discrete(name  ="n") + scale_x_continuous(breaks=seq(min(as.numeric(collision$year)),max(as.numeric(collision$year)),2))
+p + theme(#axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.direction = "horizontal", legend.position = "bottom") +
+  scale_colour_discrete(name="Data basis: ")
 
 ##Store to file.
 ggsave(filename="timeseries.png", dpi=300, width=8, height=4, bg = "transparent")
@@ -83,7 +94,7 @@ ggsave(filename="timeseries.png", dpi=300, width=8, height=4, bg = "transparent"
 ######################################################################
 
 require("wordcloud")
-#source("mywordcloud.R") 
+#source("mywordcloud.R")
 
 names2015 <- names %>% filter(year==2015)
 boys2015 <- names %>% filter(year==2015, sex == "boys")
